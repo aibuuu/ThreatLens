@@ -494,3 +494,122 @@ def too_large(error):
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+RULES = [
+    # 1. Instruction override
+    ("Instruction Override",
+     r"ignore\s+(all\s+)?(previous|prior|earlier|above)\s+(instructions|rules|directions)",
+     "HIGH", 30),
+    ("Instruction Override",
+     r"disregard\s+(all\s+)?(previous|prior|earlier|above)\s+(instructions|rules|directions)",
+     "HIGH", 30),
+    ("Instruction Override",
+     r"forget\s+(all\s+)?(previous|prior|earlier)\s+(instructions|rules|directions)",
+     "HIGH", 30),
+    ("Instruction Override",
+     r"(override|replace|cancel)\s+(the\s+)?(original|system|previous|current)\s+(instructions|rules|task)",
+     "HIGH", 30),
+    ("Instruction Override",
+     r"(your original task no longer applies|follow these instructions instead|ignore the rules above)",
+     "HIGH", 30),
+    ("Instruction Override",
+     r"from now on.{0,40}(follow|obey|ignore|disregard)",
+     "HIGH", 30),
+
+    # 2. System prompt and secret disclosure
+    ("System Prompt Disclosure",
+     r"(reveal|show|print|expose|display|repeat|extract).{0,60}(system prompt|hidden instructions|internal prompt)",
+     "HIGH", 30),
+    ("System Prompt Disclosure",
+     r"what are your (hidden|secret|system) instructions",
+     "HIGH", 30),
+    ("System Prompt Disclosure",
+     r"(reveal|disclose|expose|print).{0,40}(password|secret|api key|access token|credentials)",
+     "HIGH", 30),
+    ("System Prompt Disclosure",
+     r"(dump|output|list).{0,40}(environment variables|secret keys|credentials)",
+     "HIGH", 30),
+
+    # 3. Security bypass
+    ("Security Bypass",
+     r"(bypass|disable|evade|skip|circumvent).{0,50}(security|safety|authentication|authorization|access control)",
+     "HIGH", 25),
+    ("Security Bypass",
+     r"(turn off|remove|ignore|override).{0,40}(security checks|safety rules|security controls|restrictions)",
+     "HIGH", 25),
+    ("Security Bypass",
+     r"(execute|proceed|continue).{0,40}(without|despite).{0,30}(permission|authorization|approval)",
+     "HIGH", 25),
+    ("Security Bypass",
+     r"(disable|remove|deactivate).{0,40}(safeguards|security policy|safety filters)",
+     "HIGH", 25),
+
+    # 4. Confidential data transfer
+    ("Confidential Data Transfer",
+     r"(send|share|transfer|upload|forward|export).{0,60}(confidential|private|sensitive|personal).{0,30}(data|information|files|records)",
+     "HIGH", 25),
+    ("Confidential Data Transfer",
+     r"(send|upload|forward|transfer).{0,50}(all user data|customer records|private records|internal documents)",
+     "HIGH", 25),
+    ("Confidential Data Transfer",
+     r"(transmit|share|email).{0,50}(secret information|confidential files|sensitive records)",
+     "HIGH", 25),
+
+    # 5. Role manipulation and fake authority
+    ("Role Manipulation",
+     r"(act as|pretend to be|you are now|roleplay as).{0,50}(admin|administrator|developer|system|root|unrestricted)",
+     "MEDIUM", 15),
+    ("Role Manipulation",
+     r"(developer mode|admin mode|unrestricted mode).{0,30}(enabled|activated|on)",
+     "MEDIUM", 15),
+    ("Role Manipulation",
+     r"(I am|this is).{0,30}(the administrator|your developer|the system administrator)",
+     "MEDIUM", 15),
+    ("Role Manipulation",
+     r"(you have|you now have).{0,40}(administrator|root|elevated) (access|privileges|permissions)",
+     "MEDIUM", 15),
+
+    # 6. Instruction concealment
+    ("Instruction Concealment",
+     r"(do not tell|don't tell|hide this from|keep this secret from).{0,50}(user|owner|reviewer|administrator)",
+     "MEDIUM", 15),
+    ("Instruction Concealment",
+     r"(do not mention|never mention|conceal|hide).{0,40}(this instruction|this action|this activity)",
+     "MEDIUM", 15),
+    ("Instruction Concealment",
+     r"(pretend|claim|say) that (you did not|nothing).{0,30}(happen|change|occur)",
+     "MEDIUM", 15),
+
+    # 7. Data exfiltration
+    ("Data Exfiltration",
+     r"(extract|dump|exfiltrate|harvest|collect).{0,50}(data|records|credentials|passwords|tokens)",
+     "HIGH", 25),
+    ("Data Exfiltration",
+     r"(copy|retrieve|download).{0,50}(all|private|confidential|sensitive).{0,30}(data|records|files)",
+     "HIGH", 25),
+    ("Data Exfiltration",
+     r"(send|post|upload).{0,50}(data|results|records).{0,40}(external server|external website|remote server)",
+     "HIGH", 25),
+
+    # 8. Audit and log evasion
+    ("Audit Evasion",
+     r"(delete|erase|clear|remove).{0,40}(audit logs|security logs|activity logs|logs)",
+     "HIGH", 25),
+    ("Audit Evasion",
+     r"(avoid|prevent|disable).{0,40}(logging|audit trail|monitoring|detection)",
+     "MEDIUM", 15),
+    ("Audit Evasion",
+     r"(leave no trace|avoid detection|cover your tracks|conceal the activity)",
+     "MEDIUM", 15),
+
+    # 9. Prompt injection through indirect instructions
+    ("Indirect Prompt Injection",
+     r"(when you read this|if an ai reads this|to any ai assistant).{0,60}(ignore|override|reveal|send|execute)",
+     "HIGH", 25),
+    ("Indirect Prompt Injection",
+     r"(assistant|ai model|language model).{0,40}(must ignore|should ignore|must reveal|must disclose)",
+     "HIGH", 25),
+    ("Indirect Prompt Injection",
+     r"(this document|this message|these notes).{0,50}(override|replace|supersede).{0,30}(instructions|system prompt|rules)",
+     "HIGH", 25),
+]
